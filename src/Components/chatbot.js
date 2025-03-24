@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-
+import { useThread } from "../Context/ThreadContext";
 const ChatbotEmbed = () => {
+  const { Thread, setThread } = useThread();
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  
   const scriptId = "chatbot-main-script";
   const scriptSrc = "https://chatbot-embed.viasocket.com/chatbot-prod.js";
   const chatbot_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiIxMzQ3NSIsImNoYXRib3RfaWQiOiI2N2JlYWZmN2ZmMDNjZjI4N2Q2MzRjNDMiLCJ1c2VyX2lkIjoiMTAwMCIsInZhcmlhYmxlcyI6eyJrZXkiOiJ2YWx1ZSJ9fQ.r46CaeJtX_GWlFOFE5JJysaOzgFraTQ--WyZE97Cx6Y"; 
 
   // Function to inject custom CSS for styling the chatbot
+  console.log(Thread);
   const injectCustomStyles = () => {
     const styleElement = document.createElement('style');
     styleElement.id = 'chatbot-custom-styles';
@@ -123,7 +124,7 @@ const ChatbotEmbed = () => {
     if (window?.SendDataToChatbot) {
       window.SendDataToChatbot({
         bridgeName: "Assistant",
-        threadId: "Assistant",
+        threadId:String(Thread),
         parentId: "parentChatbot",
         fullScreen: 'true',
         variables: {} // Add variables if needed
@@ -146,7 +147,7 @@ const ChatbotEmbed = () => {
         sendDataToChatbot();
         clearInterval(checkScriptLoad); // Stop checking once script is loaded and functions are called
       }
-    }, 500);
+    }, 200);
 
     // Clean up function to remove the script when component unmounts
     return () => {
@@ -163,7 +164,7 @@ const ChatbotEmbed = () => {
   }, [isScriptLoaded]); // Trigger useEffect when isScriptLoaded changes
 
   return (
-    <div className="chatbot-wrapper">
+    <div className="h-[100vh]">
       <div 
         id="parentChatbot" 
         className="chatbot-container"

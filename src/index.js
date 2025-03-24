@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import ChatBot from './Components/chatbot';
+import {ThreadProvider} from './Context/ThreadContext'
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <ChatBot/>
+    <ThreadProvider>
+    <App/>
+    </ThreadProvider>
   </React.StrictMode>
 );
 

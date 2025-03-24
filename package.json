@@ -10,10 +10,13 @@
     "axios": "^1.8.2",
     "lucide": "^0.479.0",
     "lucide-react": "^0.479.0",
+    "nanoid": "^5.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.4.0",
     "react-scripts": "5.0.1",
+    "uuid": "^11.1.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
