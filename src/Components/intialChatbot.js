@@ -109,79 +109,7 @@ function PromptGenerator() {
     script.setAttribute("hideIcon", "true");
   
     // Function to inject custom styles for the chatbot
-    const injectCustomStyles = () => {
-      const styleElement = document.createElement('style');
-      styleElement.id = 'chatbot-custom-styles';
-      styleElement.innerHTML = `
-        .viasocket-chatbot-outer-container {
-          background-color: #121212 !important;
-          border-radius: 16px !important;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-        }
-        
-        .viasocket-chatbot-header {
-          background: linear-gradient(135deg, #2A2A72 0%, #1A1A3A 100%) !important;
-          border-bottom: 1px solid #333 !important;
-          border-radius: 16px 16px 0 0 !important;
-        }
-        
-        .viasocket-chatbot-message-container {
-          background-color: #121212 !important;
-          padding: 12px !important;
-        }
-        
-        .viasocket-chatbot-user-message {
-          background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
-          border-radius: 18px 18px 4px 18px !important;
-          box-shadow: 0 2px 10px rgba(99, 102, 241, 0.15) !important;
-        }
-        
-        .viasocket-chatbot-bot-message {
-          background-color: #2D2D2D !important;
-          border-radius: 18px 18px 18px 4px !important;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        .viasocket-chatbot-input-container {
-          background-color: #1E1E1E !important;
-          border-top: 1px solid #333 !important;
-          border-radius: 0 0 16px 16px !important;
-          padding: 12px !important;
-        }
-        
-        .viasocket-chatbot-input {
-          background-color: #2D2D2D !important;
-          border: 1px solid #444 !important;
-          border-radius: 24px !important;
-          color: #E0E0E0 !important;
-        }
-        
-        .viasocket-chatbot-send-button {
-          background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
-          border-radius: 50% !important;
-          box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
-        }
-        
-        .viasocket-chatbot-message {
-          transition: all 0.3s ease-in-out !important;
-        }
-        
-        .viasocket-chatbot-message-container::-webkit-scrollbar {
-          width: 6px !important;
-        }
-        
-        .viasocket-chatbot-message-container::-webkit-scrollbar-track {
-          background: #1A1A1A !important;
-        }
-        
-        .viasocket-chatbot-message-container::-webkit-scrollbar-thumb {
-          background: #444 !important;
-          border-radius: 6px !important;
-        }
-      `;
-      document.head.appendChild(styleElement);
-    };
-  
+   
     script.onload = () => {
       // Initialize the chatbot after script is loaded
       if (window.openChatbot && window.SendDataToChatbot) {
@@ -193,7 +121,6 @@ function PromptGenerator() {
           fullScreen: 'true',
           variables: {}
         });
-        injectCustomStyles(); // Apply custom styles after initialization
       }
     };
   
@@ -235,9 +162,7 @@ function PromptGenerator() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Create a blog post prompt on the topic of sustainable business practices"
             className="w-full px-4 py-3 bg-gray-100 border  rounded-md 
-            
             focus:outline-none focus:border-gray-500 
-           
             transition-colors duration-300 
             resize-none"
             rows="3"
