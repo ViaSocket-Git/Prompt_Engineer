@@ -5,7 +5,7 @@ const ThreadContext = createContext(null);
 
 // Context provider component
 export const ThreadProvider = ({ children }) => {
-  const [Thread, setThread] = useState("501");
+  const [Thread, setThread] = useState(null);
   return (
     <ThreadContext.Provider value={{ Thread, setThread }}>
       {children}

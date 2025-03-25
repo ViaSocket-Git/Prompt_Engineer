@@ -87,23 +87,22 @@ function PromptGenerator() {
   };
 
   const examplePrompts = [
-    "Write a children story book",
-    "Act as a Travel Guide",
-    "Act as a Financial Analyst",
-    "Act as a Essay Writer",
-    "Act as a Real Estate Agent"
+    "Create a prompt for a study plan to prepare for a final exam",
+    "Create a step-by-step guide for setting up a WordPress website",
+    "Give me a prompt for writing an ad for a high-end coffee machine",
+   
   ];
 
   return (
     <div className="bg-gray-200 min-h-screen flex items-center justify-center py-6">
       <div className="max-w-4xl w-full p-8 bg-white rounded-lg shadow-xl">
         <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-          <span className="text-red-800 underline">Create your own prompt</span>
+          <span className="text-red-800 underline">Generate Your Custom Prompt</span>
         </h1>
 
         <div className="mb-6">
           <div className="flex items-center mb-2">
-            <h2 className="text-xl font-medium text-gray-700">What would you like help with?</h2>
+            <h2 className="text-xl font-medium text-gray-700">Let Us Assist You in Crafting the Perfect Prompt</h2>
             <svg className="ml-2 w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
@@ -118,7 +117,7 @@ function PromptGenerator() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="give me a prompt to create a story"
+              placeholder="Create a blog post prompt on the topic of sustainable business practices"
               className="w-full pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md transition-all"
               rows="4"
             />
@@ -170,7 +169,7 @@ function PromptGenerator() {
             onClick={handleContinue}
             className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 w-full transition duration-200"
           >
-            Continue
+            Not Satisfied? Chat for a Better Prompt
           </button>
         )}
       </div>
