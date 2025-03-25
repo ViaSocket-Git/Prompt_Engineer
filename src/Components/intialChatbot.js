@@ -205,8 +205,10 @@ function PromptGenerator() {
   };
 
   const examplePrompts = [
-    "Create a prompt for a study plan to prepare for a final exam",
-    "Create a step-by-step guide for setting up a WordPress website",
+    "generate a prompt for a study plan to prepare for a final exam",
+    "generate prompt for creating maths test",
+    "generate a step-by-step guide for setting up a WordPress website",
+    "generate prompt for creating website using react ",
     "Give me a prompt for writing an ad for a high-end coffee machine",
   ];
 
@@ -217,7 +219,7 @@ function PromptGenerator() {
           <span className="text-red-800 underline">Generate Your Custom Prompt</span>
         </h1>
 
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="flex items-center mb-2">
             <h2 className="text-xl font-medium text-gray-700">Let Us Assist You in Crafting the Perfect Prompt</h2>
             <svg className="ml-2 w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -225,41 +227,57 @@ function PromptGenerator() {
             </svg>
           </div>
 
-          <div className="relative border rounded-md bg-white shadow-sm">
-            <div className="absolute left-3 top-3 text-indigo-600">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
-              </svg>
-            </div>
+         
+            
             <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Create a blog post prompt on the topic of sustainable business practices"
-              className="w-full pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md transition-all"
-              rows="4"
+            value={input}
+
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Create a blog post prompt on the topic of sustainable business practices"
+            className="w-full px-4 py-3 bg-gray-100 border  rounded-md 
+            
+            focus:outline-none focus:border-gray-500 
+           
+            transition-colors duration-300 
+            resize-none"
+            rows="3"
             />
-          </div>
+          
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-6 justify-center">
-          {examplePrompts.map((prompt, index) => (
-            <button
-              key={index}
-              onClick={() => setInput(prompt)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition duration-200"
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
+        <div className="flex flex-wrap gap-3 mb-6 justify-center">
+  {examplePrompts.map((prompt, index) => (
+    <button
+      key={index}
+      onClick={() => setInput(prompt)}
+      className="px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-lg text-sm text-gray-800 
+      hover:bg-gray-200 hover:border-gray-400 
+      active:bg-gray-300 active:border-gray-500
+      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50
+      shadow-sm transform hover:scale-105 active:scale-95
+      transition-all duration-300 ease-in-out
+      cursor-pointer"
+    >
+      {prompt}
+    </button>
+  ))}
+</div>
 
-        <button
-          onClick={generatePrompt}
-          disabled={isLoading || input.trim() === ''}
-          className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 disabled:opacity-50 mb-6 w-full transition duration-200"
-        >
-          {isLoading ? 'Generating...' : 'Generate'}
-        </button>
+       
+
+<button
+  onClick={generatePrompt}
+  disabled={isLoading || input.trim() === ''}
+  className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md 
+  hover:bg-gray-800 active:bg-gray-900 
+  disabled:bg-gray-500 disabled:cursor-not-allowed
+  w-full transition-all duration-300 ease-in-out 
+  font-medium tracking-wider uppercase 
+  focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+>
+  {isLoading ? 'Generating...' : 'Generate'}
+</button>
+
 
         {generatedContent && (
           <div className="bg-white border rounded-md p-6 mb-6 shadow-lg">
@@ -283,11 +301,15 @@ function PromptGenerator() {
 
         {showContinue && (
           <button
-            onClick={handleContinue}
-            className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 w-full transition duration-200"
-          >
-            Not Satisfied? Chat for a Better Prompt
-          </button>
+          onClick={handleContinue}
+          className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md 
+          hover:bg-gray-800 active:bg-gray-900 
+          w-full transition-all duration-300 ease-in-out 
+          font-medium tracking-wider uppercase 
+          focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+        >
+          Not Satisfied? Chat for a Better Prompt
+        </button>
         )}
       </div>
     </div>
