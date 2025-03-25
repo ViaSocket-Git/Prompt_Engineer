@@ -1,68 +1,71 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { useThread } from "../Context/ThreadContext";
 import { nanoid } from "nanoid";
-function Chatbot1() {
+
+
+
+
+function PromptGenerator() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showContinue, setShowContinue] = useState(false); // State for "Continue" button
+  const [showContinue, setShowContinue] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState('');
   const messagesEndRef = useRef(null);
  
-
   const { Thread, setThread } = useThread();
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
  
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
+  
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
   }, [messages]);
 
-  // Helper function to format the response
   const formatResponse = (text) => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold text
-      .replace(/# (.*?)\n/g, '<h2>$1</h2>') // Heading
-      .replace(/\n/g, '<br />'); // Line breaks
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/# (.*?)\n/g, '<h2>$1</h2>')
+      .replace(/\n/g, '<br />');
   };
 
   const generateRandomThreadId = () => {
-    return String(nanoid(9));  // Ensures the ID is explicitly a string
+    return String(nanoid(9));
   };
  
-  const sendMessage = async (messageText = input) => {
-    if (messageText.trim() === '') return;
+  const generatePrompt = async () => {
+    if (input.trim() === '') return; // Ensure input isn't empty
 
-    // Clear previous messages and show loading state
-    setMessages([]);
-    setInput('');
     setIsLoading(true);
-    setShowContinue(false); // Hide "Continue" button
+    setShowContinue(false);
+    setGeneratedContent('');
 
-    const userMessage = { text: messageText, sender: 'user' };
-    setMessages(prevMessages => [...prevMessages, userMessage]);
     const newThreadId = generateRandomThreadId();
     setThread(newThreadId);
-    console.log(newThreadId)
-    // Use the local variable
+    
     try {  
       const response = await fetch('https://api.gtwy.ai/api/v2/model/chat/completion', {
         method: 'POST',
         headers: {
-          'pauthkey': '8c7ca6fd1ba9a90b1710a88070dfaa2b',
+          'pauthkey': process.env.REACT_APP_PAUTH_KEY,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           thread_id: String(newThreadId),  
-          user: messageText,
-          bridge_id: '67beaf5c435a135f50eecdbc',
+          user: input,
+          bridge_id: process.env.REACT_APP_BRIDGE_ID,
           response_type: 'text'
         })
       });
-      console.log(`Using thread ID: ${newThreadId}`);
+      
       const data = await response.json();
       let botResponse = "Sorry, I couldn't process that request.";
 
@@ -70,149 +73,111 @@ function Chatbot1() {
         botResponse = data.response.data.content;
       }
 
-      // Format the bot's response
       const formattedResponse = formatResponse(botResponse);
-
-      setMessages(prevMessages => [...prevMessages, {
-        text: formattedResponse,
-        sender: 'bot'
-      }]);
-
-      // Show "Continue" button after the bot responds
+      setGeneratedContent(formattedResponse);
       setShowContinue(true);
     } catch (error) {
       console.error('Error fetching response:', error);
-      setMessages(prevMessages => [...prevMessages, {
-        text: "Sorry, there was an error connecting to the API.",
-        sender: 'bot'
-      }]);
+      setGeneratedContent("Sorry, there was an error connecting to the API.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  };
-
-  const handleSuggestionClick = (suggestion) => {
-    sendMessage(suggestion);
-  };
-
   const handleContinue = () => {
-    setShowContinue(false); // Hide "Continue" button
-    setMessages([]); // Clear the chat for a new interaction
-    navigate('/new-page'); // Navigate to the new page
+    setShowContinue(false);
+    setGeneratedContent('');
+    navigate('/new-page');
   };
+
+  const examplePrompts = [
+    "Write a children story book",
+    "Act as a Travel Guide",
+    "Act as a Financial Analyst",
+    "Act as a Essay Writer",
+    "Act as a Real Estate Agent"
+  ];
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="flex flex-col h-screen w-3/4 bg-gray-200 shadow-xl">
-        {/* Header */}
-        <div className="bg-gray-800 border-b border-gray-700 p-4 flex items-center justify-between text-gray-100">
-          <div className="flex items-center">
-            <button className="mr-4 text-gray-300 hover:text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+    <div className="bg-gray-200 min-h-screen flex items-center justify-center">
+      <div className="max-w-4xl w-full p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold mb-6 text-center"><span className="text-red-800 underline">Create your own prompt</span></h1>
+        
+        <div className="mb-6">
+          <div className="flex items-center mb-2">
+            <h2 className="text-xl font-medium">What would you like help with?</h2>
+            <svg className="ml-2 w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
           </div>
           
-          <div className="text-center">
-            <div className="flex items-center justify-center">
-              <span className="font-bold">Chatbot</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <div className="relative border rounded-md bg-white">
+            <div className="absolute left-3 top-3 text-indigo-600">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 16L7 11H17L12 16Z" fill="currentColor" />
               </svg>
             </div>
-            <span className="text-xs text-gray-400">Prompt Engineer</span>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="give me a prompt to create a story"
+              className="w-full pl-12 pr-4 py-3 focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md"
+              rows="4"
+            />
           </div>
         </div>
         
-        {/* Chat Messages */}
-        <div className="flex-1 p-6 overflow-y-auto bg-gray-100">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <div className="w-16 h-16 rounded-full bg-black flex items-center justify-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border-2 border-white">
-                  <div className="w-3 h-3 rounded-full bg-white"></div>
-                </div>
-              </div>
-              <h2 className="text-xl font-bold mb-4 text-gray-800">What can I help with?</h2>
-            </div>
-          ) : (
-            <>
-              {messages.map((message, index) => (
-                <div 
-                  key={index} 
-                  className={`mb-4 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`px-4 py-3 rounded-lg max-w-2xl w-full break-words ${message.sender === 'user' ? 'bg-black text-white rounded-br-none' : 'bg-gray-300 text-gray-800 rounded-bl-none'}`}
-                    dangerouslySetInnerHTML={{ __html: message.text }} 
-                  />
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start mb-4">
-                  <div className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg rounded-bl-none">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-          <div ref={messagesEndRef} />
+        <div className="flex flex-wrap gap-2 mb-6 justify-center">
+          {examplePrompts.map((prompt, index) => (
+            <button 
+              key={index}
+              onClick={() => setInput(prompt)}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50"
+            >
+              {prompt}
+            </button>
+          ))}
         </div>
         
-        {/* Suggestions */}
-        {messages.length === 0 }
+        <button
+          onClick={generatePrompt}
+          disabled={isLoading || input.trim() === ''}
+          className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 disabled:opacity-50 mb-6 w-full"
+        >
+          {isLoading ? 'Generating...' : 'Generate'}
+        </button>
         
-        {/* Continue Button */}
-        {showContinue && (
-          <div className="px-6 pb-4 bg-gray-100">
-            <button
-              onClick={handleContinue}
-              className="w-full bg-black text-white rounded-lg p-3 hover:bg-gray-800"
-            >
-              Continue
-            </button>
+        {generatedContent && (
+          <div className="bg-white border rounded-md p-6 mb-6 shadow-sm">
+            <h3 className="text-lg font-medium mb-3">Generated Prompt:</h3>
+            <div 
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{ __html: generatedContent }} 
+            />
           </div>
         )}
         
-        {/* Input Box */}
-        <div className="border-t border-gray-300 p-4 bg-gray-200">
-          <div className="flex items-center relative">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) =>{ 
-                setInput(e.target.value)
-               }}
-              onKeyPress={handleKeyPress}
-              placeholder="Message AI Assistant..."
-              className="w-full bg-gray-300 border border-gray-400 rounded-lg pl-10 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-black text-gray-800"
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={isLoading || input.trim() === ''}
-              className="absolute right-3 text-gray-600 hover:text-black disabled:opacity-50"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m0 0l-7 7m7-7l-7-7" />
-              </svg>
-            </button>
+        {isLoading && (
+          <div className="bg-white border rounded-md p-6 mb-6 shadow-sm flex justify-center items-center h-40">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-red-800 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-red-800 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-3 h-3 bg-red-800 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
           </div>
-        </div>
+        )}
+        
+        {showContinue && (
+          <button
+            onClick={handleContinue}
+            className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-900 w-full"
+          >
+            Continue
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-export default Chatbot1;
+export default PromptGenerator;

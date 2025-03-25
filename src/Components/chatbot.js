@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useThread } from "../Context/ThreadContext";
+
 const ChatbotEmbed = () => {
-  const { Thread, setThread } = useThread();
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
-  const scriptId = "chatbot-main-script";
-  const scriptSrc = "https://chatbot-embed.viasocket.com/chatbot-prod.js";
-  const chatbot_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfaWQiOiIxMzQ3NSIsImNoYXRib3RfaWQiOiI2N2JlYWZmN2ZmMDNjZjI4N2Q2MzRjNDMiLCJ1c2VyX2lkIjoiMTAwMCIsInZhcmlhYmxlcyI6eyJrZXkiOiJ2YWx1ZSJ9fQ.r46CaeJtX_GWlFOFE5JJysaOzgFraTQ--WyZE97Cx6Y"; 
+  const { Thread } = useThread();
+  const [isScriptReady, setIsScriptReady] = useState(false);
+
+  
+  const scriptId = process.env.REACT_APP_SCRIPT_ID;
+  const scriptSrc = process.env.REACT_APP_SCRIPT_SRC;
+  const chatbot_token = process.env.REACT_APP_CHATBOT_TOKEN; 
 
   // Function to inject custom CSS for styling the chatbot
-  console.log(Thread);
-  const injectCustomStyles = () => {
+  const injectCustomStyles = useCallback(() => {
+    if (document.getElementById('chatbot-custom-styles')) return;
+
     const styleElement = document.createElement('style');
     styleElement.id = 'chatbot-custom-styles';
     styleElement.innerHTML = `
@@ -62,12 +66,10 @@ const ChatbotEmbed = () => {
         box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2) !important;
       }
       
-      /* Animation for messages */
       .viasocket-chatbot-message {
         transition: all 0.3s ease-in-out !important;
       }
       
-      /* Custom scrollbar */
       .viasocket-chatbot-message-container::-webkit-scrollbar {
         width: 6px !important;
       }
@@ -82,86 +84,83 @@ const ChatbotEmbed = () => {
       }
     `;
     document.head.appendChild(styleElement);
-  };
+  }, []);
 
-  const updateScript = () => {
-    console.log(chatbot_token);
-    if (chatbot_token) {
-      // Remove existing script if it exists
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      const script = document.createElement("script");
-      script.setAttribute("embedToken", chatbot_token);
-      script.setAttribute("hideIcon", "true");
-      script.id = scriptId;
-      script.src = scriptSrc;
-      document.head.appendChild(script);
-      console.log("Chatbot script updated.");
-      setIsScriptLoaded(true);
-      
-      // Inject custom styles after script is loaded
-      setTimeout(() => {
-        injectCustomStyles();
-      }, 1000);
-    }
-  };
-
-  // Function to handle opening the chatbot
-  const handleOpenChatbot = () => {
-    if (window?.openChatbot) {
+  const initializeChatbot = useCallback(() => {
+    if (window.openChatbot && window.SendDataToChatbot) {
       window.openChatbot();
-      console.log("Chatbot opened.");
-    } else {
-      console.log("Chatbot is not ready yet.");
-    }
-  };
-
-  // Function to send data to the chatbot
-  const sendDataToChatbot = () => {
-    if (window?.SendDataToChatbot) {
       window.SendDataToChatbot({
         bridgeName: "Assistant",
-        threadId:String(Thread),
+        threadId: String(Thread),
         parentId: "parentChatbot",
         fullScreen: 'true',
-        variables: {} // Add variables if needed
+        variables: {}
       });
-      console.log("Data sent to chatbot.");
-    } else {
-      console.log("Chatbot is not ready yet.");
+      injectCustomStyles();
+      return true;
     }
-  };
+    return false;
+  }, [Thread, injectCustomStyles]);
 
-  // useEffect to trigger functions automatically when the component mounts
-  useEffect(() => {
-    // Update the script
-    updateScript();
+  const loadScript = useCallback(() => {
+    // Remove existing script and styles if they exist
+    const existingScript = document.getElementById(scriptId);
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    const customStyles = document.getElementById('chatbot-custom-styles');
+    if (customStyles) {
+      customStyles.remove();
+    }
 
-    // Run after script is loaded
-    const checkScriptLoad = setInterval(() => {
-      if (isScriptLoaded) {
-        handleOpenChatbot();
-        sendDataToChatbot();
-        clearInterval(checkScriptLoad); // Stop checking once script is loaded and functions are called
-      }
-    }, 200);
+    if (!chatbot_token) return;
 
-    // Clean up function to remove the script when component unmounts
-    return () => {
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        existingScript.remove();
-      }
-      const customStyles = document.getElementById('chatbot-custom-styles');
-      if (customStyles) {
-        customStyles.remove();
-      }
-      clearInterval(checkScriptLoad); // Clear interval when component unmounts
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = scriptSrc;
+    script.setAttribute("embedToken", chatbot_token);
+    script.setAttribute("hideIcon", "true");
+    
+    script.onload = () => {
+      setIsScriptReady(true);
+      // Try to initialize immediately
+      if (initializeChatbot()) return;
+      
+      // Fallback: check periodically if initialization fails
+      const interval = setInterval(() => {
+        if (initializeChatbot()) {
+          clearInterval(interval);
+        }
+      }, 200);
     };
-  }, [isScriptLoaded]); // Trigger useEffect when isScriptLoaded changes
+
+    script.onerror = () => {
+      console.error("Failed to load chatbot script");
+    };
+
+    document.head.appendChild(script);
+  }, [initializeChatbot]);
+
+  useEffect(() => {
+    loadScript();
+    
+    return () => {
+      // Cleanup script and styles
+      const script = document.getElementById(scriptId);
+      if (script) script.remove();
+      
+      const styles = document.getElementById('chatbot-custom-styles');
+      if (styles) styles.remove();
+    };
+  }, [loadScript]);
+
+  // Re-initialize when Thread changes
+  useEffect(() => {
+    if (isScriptReady) {
+      initializeChatbot();
+    }
+  }, [Thread, isScriptReady, initializeChatbot]);
 
   return (
     <div className="h-[100vh]">
@@ -185,5 +184,3 @@ const ChatbotEmbed = () => {
 };
 
 export default ChatbotEmbed;
-
-
