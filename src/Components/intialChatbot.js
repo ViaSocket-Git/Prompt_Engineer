@@ -156,35 +156,27 @@ function PromptGenerator() {
 
          
             
-            <textarea
-            value={input}
+          <textarea
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  placeholder="Create a blog post prompt on the topic of sustainable business practices"
+  className="w-full px-4 py-3 bg-gray-100 border rounded-md focus:outline-none focus:border-gray-500 transition duration-300 resize-none"
+  rows="3"
+/>
 
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Create a blog post prompt on the topic of sustainable business practices"
-            className="w-full px-4 py-3 bg-gray-100 border  rounded-md 
-            focus:outline-none focus:border-gray-500 
-            transition-colors duration-300 
-            resize-none"
-            rows="3"
-            />
           
         </div>
 
         <div className="flex flex-wrap gap-3 mb-6 justify-center">
   {examplePrompts.map((prompt, index) => (
-    <button
-      key={index}
-      onClick={() => setInput(prompt)}
-      className="px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-lg text-sm text-gray-800 
-      hover:bg-gray-200 hover:border-gray-400 
-      active:bg-gray-300 active:border-gray-500
-      focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50
-      shadow-sm transform hover:scale-105 active:scale-95
-      transition-all duration-300 ease-in-out
-      cursor-pointer"
-    >
-      {prompt}
-    </button>
+   <button
+   key={index}
+   onClick={() => setInput(prompt)}
+   className="px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-lg text-sm text-gray-800 hover:bg-gray-200 hover:border-gray-400 active:bg-gray-300 active:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-sm transform hover:scale-105 active:scale-95 transition duration-300 ease-in-out cursor-pointer"
+ >
+   {prompt}
+ </button>
+ 
   ))}
 </div>
 
@@ -193,12 +185,7 @@ function PromptGenerator() {
 <button
   onClick={generatePrompt}
   disabled={isLoading || input.trim() === ''}
-  className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md 
-  hover:bg-gray-800 active:bg-gray-900 
-  disabled:bg-gray-500 disabled:cursor-not-allowed
-  w-full transition-all duration-300 ease-in-out 
-  font-medium tracking-wider uppercase 
-  focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+  className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md hover:bg-gray-800 active:bg-gray-900 disabled:bg-gray-500 disabled:cursor-not-allowed w-full transition duration-300 ease-in-out font-medium tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
 >
   {isLoading ? 'Generating...' : 'Generate'}
 </button>
@@ -224,18 +211,15 @@ function PromptGenerator() {
           </div>
         )}
 
-        {showContinue && (
-          <button
-          onClick={handleContinue}
-          className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md 
-          hover:bg-gray-800 active:bg-gray-900 
-          w-full transition-all duration-300 ease-in-out 
-          font-medium tracking-wider uppercase 
-          focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
-        >
-          Not Satisfied? Chat for a Better Prompt
-        </button>
-        )}
+{showContinue && (
+  <button
+    onClick={handleContinue}
+    className="bg-gray-700 text-white px-6 py-2 rounded-md shadow-md hover:bg-gray-800 active:bg-gray-900 w-full transition duration-300 ease-in-out font-medium tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+  >
+    Not Satisfied? Chat for a Better Prompt
+  </button>
+)}
+
       </div>
     </div>
   );
