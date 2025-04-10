@@ -8,6 +8,8 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.2",
+    "jose": "^6.0.10",
+    "jwt-decode": "^4.0.0",
     "lucide": "^0.479.0",
     "lucide-react": "^0.479.0",
     "nanoid": "^5.1.5",

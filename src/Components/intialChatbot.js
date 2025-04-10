@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useThread } from "../Context/ThreadContext";
 import { nanoid } from "nanoid";
+import { SignJWT } from 'jose';
+
 
 function PromptGenerator() {
   const [messages, setMessages] = useState([]);
@@ -9,9 +11,8 @@ function PromptGenerator() {
   const [showContinue, setShowContinue] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const messagesEndRef = useRef(null);
-
+  const tokenRef = useRef(null);
   const { Thread, setThread } = useThread();
-
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -35,6 +36,19 @@ function PromptGenerator() {
     return String(nanoid(9));
   };
 
+  const generateToken = async ({ payload, accessKey }) => {
+    const encoder = new TextEncoder();
+    const secret = encoder.encode(accessKey); 
+  
+    const jwt = await new SignJWT(payload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('2h')
+      .sign(secret);
+  
+    return jwt;
+  };
+
   const generatePrompt = async () => {
     if (input.trim() === '') return;
 
@@ -44,21 +58,48 @@ function PromptGenerator() {
 
     const newThreadId = generateRandomThreadId();
     setThread(newThreadId);
-
+   
+    const payload={
+      "org_id": process.env.REACT_APP_ORG_ID,
+      "chatbot_id": process.env.REACT_APP_CHATBOT_ID,
+      'user_id' : process.env.REACT_APP_USER_ID
+    }
+    let y={payload, accessKey: process.env.REACT_APP_ACCESSKEY}
+    const tokenx = await generateToken(y);
+    tokenRef.current = tokenx;
     try {
-      const response = await fetch('https://api.gtwy.ai/api/v2/model/chat/completion', {
+      const loginResponse = await fetch('https://db.gtwy.ai/chatbot/loginuser', {
         method: 'POST',
         headers: {
-          'pauthkey': process.env.REACT_APP_PAUTH_KEY,
+          'Content-Type': 'application/json',
+          'Authorization': tokenx
+        }
+      });
+  
+      if (!loginResponse.ok) {
+        throw new Error('Failed to login');
+      }
+  
+      const loginData = await loginResponse.json();
+      const token2 = loginData.data.token; 
+  
+      const response = await fetch('https://api.gtwy.ai/chatbot/67beaf4cff03cf287d634bba/sendMessage', {
+        method: 'POST',
+        headers: {
+          'Authorization': token2,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          thread_id: String(newThreadId),
-          user: input,
-          bridge_id: process.env.REACT_APP_BRIDGE_ID,
-          response_type: 'text'
+          chatBotId: '67beaf4cff03cf287d634bba',
+          message: input,  
+          userId: 'nano',
+          threadId: String(newThreadId),
+          slugName: 'Assistant',
+          version_id: '67beaf5c435a135f50eecdbd',
+          flag: true
         })
       });
+
 
       const data = await response.json();
       let botResponse = "Sorry, I couldn't process that request.";
@@ -81,13 +122,13 @@ function PromptGenerator() {
   const handleContinue = () => {
     setShowContinue(false);
     setGeneratedContent('');
-    loadChatbot();  // This will load the chatbot iframe dynamically
+    loadChatbot(tokenRef.current);  // This will load the chatbot iframe dynamically
   };
 
-  const loadChatbot = () => {
+  const loadChatbot = (ct) => {
     const scriptId = process.env.REACT_APP_SCRIPT_ID;
     const scriptSrc = process.env.REACT_APP_SCRIPT_SRC;
-    const chatbot_token = process.env.REACT_APP_CHATBOT_TOKEN;
+    const chatbot_token = ct;
   
     // Remove existing script and styles if they already exist
     const existingScript = document.getElementById(scriptId);
