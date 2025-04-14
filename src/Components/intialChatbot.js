@@ -90,12 +90,12 @@ function PromptGenerator() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          chatBotId: '67beaf4cff03cf287d634bba',
+          chatBotId: process.env.REACT_APP_CHATBOT_ID,
           message: input,  
-          userId: 'nano',
+          userId: process.env.REACT_APP_USER_ID,
           threadId: String(newThreadId),
-          slugName: 'Assistant',
-          version_id: '67beaf5c435a135f50eecdbd',
+          slugName: process.env.REACT_APP_SLUG_NAME,
+          version_id: process.env.REACT_APP_VERSION_ID,
           flag: true
         })
       });
